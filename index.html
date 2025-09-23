@@ -195,7 +195,7 @@
 </head>
 <body>
 
-    <div class="card">
+    <div class="card" id="main-card">
         <img src="https://i.ibb.co/dwxmdBY1/bcc-mc.png" alt="BCC MC Logo" class="logo">
         <h1>Verifikacija</h1>
         
@@ -215,47 +215,75 @@
     </div>
 
     <script>
+        const card = document.getElementById('main-card');
         const form = document.getElementById('verification-form');
         const checkbox = document.getElementById('verify-checkbox');
         const submitBtn = document.getElementById('submit-btn');
         const messageEl = document.getElementById('message');
 
-        checkbox.addEventListener('change', () => {
-            submitBtn.disabled = !checkbox.checked;
-        });
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const placeholderUsername = 'verifikacija_korisnika';
-            
-            messageEl.textContent = "Procesuiranje...";
-            messageEl.style.color = "var(--text-muted-color)";
-            submitBtn.disabled = true;
-
-            try {
-                const response = await fetch('/api/whitelist', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: placeholderUsername })
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    messageEl.textContent = "✅ Uspešno si verifikovao/la IP adresu. Sada imaš pristup Minecraft serveru pod prijavljenim username-om.";
-                    messageEl.style.color = "var(--success-color)";
-                } else {
-                    throw new Error(result.error);
-                }
-
-            } catch (error) {
-                messageEl.textContent = `❌ Greška: ${error.message}`;
-                messageEl.style.color = "var(--error-color)";
-            } finally {
-                submitBtn.disabled = !checkbox.checked;
+        // NEW: Check for token on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+            if (!token) {
+                card.innerHTML = `
+                    <h1>❌ Greška 404</h1>
+                    <p>Stranica nije pronađena ili je verifikacioni link neispravan.</p>
+                    <p style="font-size: 0.8rem; color: #888; margin-top: 1.5rem;">Molimo vas, koristite link koji ste dobili od bota na Discordu.</p>
+                `;
             }
         });
+
+        if (checkbox) {
+            checkbox.addEventListener('change', () => {
+                if(submitBtn) submitBtn.disabled = !checkbox.checked;
+            });
+        }
+
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // UPDATED: Get token from URL
+                const params = new URLSearchParams(window.location.search);
+                const token = params.get('token');
+
+                if (!token) {
+                    messageEl.textContent = '❌ Greška: Verifikacioni token nedostaje.';
+                    messageEl.style.color = "var(--error-color)";
+                    return;
+                }
+                
+                messageEl.textContent = "Procesuiranje...";
+                messageEl.style.color = "var(--text-muted-color)";
+                submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/api/whitelist', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        // UPDATED: Send the token, not a placeholder username
+                        body: JSON.stringify({ token: token })
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        // NEW: Redirect to success page instead of showing text
+                        window.location.href = '/success.html';
+                    } else {
+                        throw new Error(result.error);
+                    }
+
+                } catch (error) {
+                    messageEl.textContent = `❌ Greška: ${error.message}`;
+                    messageEl.style.color = "var(--error-color)";
+                } finally {
+                    // Re-enable the button only if the checkbox is still checked
+                    if (checkbox) submitBtn.disabled = !checkbox.checked;
+                }
+            });
+        }
     </script>
 
 </body>
