@@ -28,7 +28,7 @@ export default async function handler(request, response) {
         // IPQS uses simple boolean flags for "proxy" and "vpn"
         if (ipData.success === true && (ipData.proxy || ipData.vpn)) {
             // If either flag is true, reject the request.
-            return response.status(403).json({ error: 'VPNs and proxies are not allowed. Please disable yours and try again.' });
+            return response.status(403).json({ error: 'VPN-ovi i proxy nije dozvoljen. Ugasi VPN i pokušaj opet.' });
         }
         if (ipData.success === false) {
              // If the API call itself fails, log it and stop
