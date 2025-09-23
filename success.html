@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifikacija Uspešna</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* This styling is identical to index.html for a consistent look */
+        :root {
+            --success-color: #3BA55D;
+            --background-start: #1e2124;
+            --background-end: #282b30;
+            --card-background: rgba(44, 47, 51, 0.65);
+            --text-color: #FFFFFF;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { overflow-x: hidden; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(315deg, var(--background-start), var(--background-end));
+        }
+        .card {
+            background: var(--card-background);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            max-width: 420px;
+            width: 100%;
+        }
+        .logo { max-width: 120px; margin-bottom: 1rem; }
+        h1 { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: var(--success-color); }
+        p { font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img src="https://i.ibb.co/dwxmdBY1/bcc-mc.png" alt="BCC MC Logo" class="logo">
+        <h1>✅ Uspeh!</h1>
+        <p>Tvoja IP adresa je uspešno verifikovana. Proveri DM na Discordu za konačnu potvrdu.</p>
+        <p style="font-size: 0.8rem; color: #888; margin-top: 1.5rem;">Ovaj prozor sada možeš zatvoriti.</p>
+    </div>
+</body>
+</html>
