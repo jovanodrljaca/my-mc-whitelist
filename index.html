@@ -214,14 +214,14 @@
         <p class="footer">Napravio: Kasapin</p>
     </div>
 
-    <script>
+   <script>
         const card = document.getElementById('main-card');
         const form = document.getElementById('verification-form');
         const checkbox = document.getElementById('verify-checkbox');
         const submitBtn = document.getElementById('submit-btn');
         const messageEl = document.getElementById('message');
 
-        // NEW: Check for token on page load
+        // This part checks the URL when the page first loads
         document.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
             const token = params.get('token');
@@ -234,22 +234,24 @@
             }
         });
 
-        if (checkbox) {
-            checkbox.addEventListener('change', () => {
-                if(submitBtn) submitBtn.disabled = !checkbox.checked;
-            });
-        }
-
+        // This part handles the form submission when you click the button
         if (form) {
+            checkbox.addEventListener('change', () => {
+                submitBtn.disabled = !checkbox.checked;
+            });
+
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-
-                // UPDATED: Get token from URL
+                
+                //
+                // THIS IS THE CRUCIAL FIX
+                // We read the token from the URL *again* right before sending.
+                //
                 const params = new URLSearchParams(window.location.search);
                 const token = params.get('token');
 
                 if (!token) {
-                    messageEl.textContent = '❌ Greška: Verifikacioni token nedostaje.';
+                    messageEl.textContent = '❌ Greška: Verifikacioni token nedostaje u URL-u.';
                     messageEl.style.color = "var(--error-color)";
                     return;
                 }
@@ -262,14 +264,14 @@
                     const response = await fetch('/api/whitelist', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        // UPDATED: Send the token, not a placeholder username
+                        // And we send the 'token' in the body of the request
                         body: JSON.stringify({ token: token })
                     });
 
                     const result = await response.json();
 
                     if (response.ok) {
-                        // NEW: Redirect to success page instead of showing text
+                        // Redirect to the success page
                         window.location.href = '/success.html';
                     } else {
                         throw new Error(result.error);
@@ -279,14 +281,10 @@
                     messageEl.textContent = `❌ Greška: ${error.message}`;
                     messageEl.style.color = "var(--error-color)";
                 } finally {
-                    // Re-enable the button only if the checkbox is still checked
-                    if (checkbox) submitBtn.disabled = !checkbox.checked;
+                    if(checkbox) submitBtn.disabled = !checkbox.checked;
                 }
             });
         }
-
-        
-    // komentar 001
-</script>
+    </script>
 </body>
 </html>
