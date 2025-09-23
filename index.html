@@ -243,7 +243,7 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    messageEl.textContent = "✅ Uspeh! Vaša IP adresa je zabeležena.";
+                    messageEl.textContent = "✅ Uspešno si verifikovao/la IP adresu. Sada imaš pristup Minecraft serveru pod prijavljenim username-om.";
                     messageEl.style.color = "var(--success-color)";
                 } else {
                     throw new Error(result.error);
