@@ -7,7 +7,7 @@ export default async function handler(request, response) {
     // Get the verification token from the request body
     const { token } = request.body;
     if (!token) {
-        return response.status(400).json({ error: 'Verification token is missing.' });
+        return response.status(400).json({ error: 'Verifikacioni token nedostaje.' });
     }
 
     // Get the user's IP address
