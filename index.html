@@ -6,16 +6,18 @@
     <title>BCC Minecraft Verifikacija</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #5865F2; /* Discord Blurple */
-            --success-color: #3BA55D; /* Discord Green */
-            --error-color: #ED4245;   /* Discord Red */
-            --background-color: #23272A;
-            --card-background: rgba(44, 47, 51, 0.75);
+            --primary-color: #5865F2;
+            --success-color: #3BA55D;
+            --error-color: #ED4245;
+            --background-start: #1e2124;
+            --background-end: #282b30;
+            --card-background: rgba(44, 47, 51, 0.65);
             --text-color: #FFFFFF;
             --text-muted-color: #B9BBBE;
+            --glow-color: rgba(88, 101, 242, 0.4);
         }
 
         * {
@@ -24,9 +26,12 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            overflow-x: hidden; /* Disables horizontal scrolling */
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
-            background: var(--background-color) url('https://static.planetminecraft.com/files/image/minecraft/project/2020/738/13192224_l.jpg') no-repeat center center/cover;
             color: var(--text-color);
             display: flex;
             justify-content: center;
@@ -34,45 +39,67 @@
             min-height: 100vh;
             text-align: center;
             padding: 20px;
+            background: linear-gradient(315deg, var(--background-start), var(--background-end));
+            animation: pulse-background 10s ease-in-out infinite;
+        }
+
+        @keyframes pulse-background {
+            0% { background-color: var(--background-start); }
+            50% { background-color: #36393F; } /* Discord's dark grey for a subtle shift */
+            100% { background-color: var(--background-start); }
         }
 
         .card {
             background: var(--card-background);
             padding: 2.5rem;
-            border-radius: 16px;
+            border-radius: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            max-width: 400px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 25px 0 var(--glow-color);
+            max-width: 420px;
             width: 100%;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fade-in-up 0.8s ease-out 0.3s forwards;
+        }
+        
+        @keyframes fade-in-up {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .logo {
             max-width: 120px;
             margin-bottom: 1rem;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
         }
 
         h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
+            font-size: 2rem;
+            font-weight: 700;
             margin-bottom: 1.5rem;
         }
         
-        /* Custom Checkbox Styling */
-        .checkbox-wrapper {
+        /* -- Checkbox Fix & Redesign -- */
+        .checkbox-label {
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 1.5rem;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent; /* Removes blue tap highlight on mobile */
         }
 
-        .checkbox-wrapper input[type="checkbox"] {
-            opacity: 0;
-            width: 0;
-            height: 0;
+        .checkbox-label input[type="checkbox"] {
+            display: none; /* Hide the default checkbox */
         }
 
         .custom-checkbox {
@@ -81,73 +108,88 @@
             background-color: #202225;
             border: 2px solid var(--primary-color);
             border-radius: 6px;
-            display: inline-block;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin-right: 12px;
-            transition: background-color 0.2s ease;
-            position: relative;
+            transition: all 0.3s ease;
+            transform-origin: center;
         }
-
-        .custom-checkbox::after {
-            content: '';
-            position: absolute;
-            left: 7px;
-            top: 3px;
+        
+        .custom-checkbox .tick {
             width: 6px;
             height: 12px;
             border: solid white;
             border-width: 0 3px 3px 0;
-            transform: rotate(45deg);
+            transform: rotate(45deg) scale(0);
             opacity: 0;
-            transition: opacity 0.2s ease;
+            transition: all 0.2s ease-out;
         }
 
-        .checkbox-wrapper input[type="checkbox"]:checked + .custom-checkbox {
+        .checkbox-label input[type="checkbox"]:checked + .custom-checkbox {
             background-color: var(--primary-color);
+            transform: scale(1.1);
         }
-
-        .checkbox-wrapper input[type="checkbox"]:checked + .custom-checkbox::after {
+        
+        .checkbox-label input[type="checkbox"]:checked + .custom-checkbox .tick {
+            transform: rotate(45deg) scale(1);
             opacity: 1;
         }
 
-        .checkbox-wrapper label {
+        .checkbox-label span.text {
             font-size: 1rem;
             color: var(--text-muted-color);
-            cursor: pointer;
+            transition: color 0.3s ease;
         }
-
+        
+        .checkbox-label:hover span.text {
+            color: var(--text-color);
+        }
 
         .submit-btn {
             width: 100%;
             padding: 15px;
             border-radius: 8px;
             border: none;
-            background: var(--primary-color);
+            background: linear-gradient(45deg, #4752C4, var(--primary-color));
             color: white;
             cursor: pointer;
             font-weight: 600;
             font-size: 1rem;
             font-family: 'Poppins', sans-serif;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
         }
 
         .submit-btn:hover:not(:disabled) {
-            background: #4752C4;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
         }
         
         .submit-btn:active:not(:disabled) {
-            transform: scale(0.98);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
         }
 
         .submit-btn:disabled {
-            background-color: #4f545c;
+            background: #4f545c;
             cursor: not-allowed;
-            opacity: 0.7;
+            opacity: 0.6;
+            box-shadow: none;
         }
 
         #message {
             margin-top: 1.5rem;
-            font-weight: bold;
+            font-weight: 600;
             min-height: 24px;
+            transition: color 0.3s ease;
+        }
+        
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-muted-color);
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -158,15 +200,18 @@
         <h1>Verifikacija</h1>
         
         <form id="verification-form">
-            <div class="checkbox-wrapper">
+            <label class="checkbox-label" for="verify-checkbox">
                 <input type="checkbox" id="verify-checkbox">
-                <span class="custom-checkbox"></span>
-                <label for="verify-checkbox">Slažem se sa verifikacijom</label>
-            </div>
+                <span class="custom-checkbox"><div class="tick"></div></span>
+                <span class="text">Slažem se sa verifikacijom</span>
+            </label>
+            
             <button type="submit" id="submit-btn" class="submit-btn" disabled>Verifikuj IP Adresu</button>
         </form>
 
         <p id="message"></p>
+        
+        <p class="footer">Napravio: Kasapin</p>
     </div>
 
     <script>
@@ -182,8 +227,6 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Since there is no username field, we send a placeholder.
-            // Your backend script expects a "username" field, so we provide one.
             const placeholderUsername = 'verifikacija_korisnika';
             
             messageEl.textContent = "Procesuiranje...";
@@ -200,10 +243,9 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    messageEl.textContent = "✅ Uspeh! Vaša IP adresa je zabeležena za verifikaciju.";
+                    messageEl.textContent = "✅ Uspeh! Vaša IP adresa je zabeležena.";
                     messageEl.style.color = "var(--success-color)";
                 } else {
-                    // This will display custom errors from our API like "VPNs not allowed"
                     throw new Error(result.error);
                 }
 
@@ -211,7 +253,6 @@
                 messageEl.textContent = `❌ Greška: ${error.message}`;
                 messageEl.style.color = "var(--error-color)";
             } finally {
-                // Re-enable the button only if the checkbox is still checked
                 submitBtn.disabled = !checkbox.checked;
             }
         });
