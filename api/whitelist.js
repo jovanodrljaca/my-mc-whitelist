@@ -7,7 +7,7 @@ export default async function handler(request, response) {
 
     // Get the secrets from environment variables
     const discordWebhookUrl = process.env.DISCORD_WEBHOOK_URL;
-    const ipinfoToken = process.env.IPINFO_TOKEN; // <-- NEW: Get the IPinfo token
+    const ipinfoToken = process.env.IPINFO_TOKEN;
 
     // Get the Minecraft username from the request body
     const { username } = request.body;
@@ -19,10 +19,14 @@ export default async function handler(request, response) {
     // Get the user's IP address from the request headers
     const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
 
-    // --- NEW: VPN and Proxy Check using IPinfo ---
+    // --- VPN and Proxy Check using IPinfo ---
     try {
         const ipInfoResponse = await fetch(`https://ipinfo.io/${ip}?token=${ipinfoToken}`);
         const ipData = await ipInfoResponse.json();
+
+        // -- ADD THIS LINE FOR DEBUGGING ---
+        console.log('IPinfo Response:', ipData);
+        // ------------------------------------
 
         // The 'privacy' object contains details about VPNs, proxies, etc.
         if (ipData.privacy && (ipData.privacy.vpn || ipData.privacy.proxy || ipData.privacy.hosting)) {
