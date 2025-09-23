@@ -7,7 +7,7 @@ export default async function handler(request, response) {
 
     // Get the secrets from environment variables
     const discordWebhookUrl = process.env.DISCORD_WEBHOOK_URL;
-    const ipinfoToken = process.env.IPINFO_TOKEN;
+    const ipqsKey = process.env.IPQS_KEY; // <-- NEW: Get the IPQS API key
 
     // Get the Minecraft username from the request body
     const { username } = request.body;
@@ -19,23 +19,26 @@ export default async function handler(request, response) {
     // Get the user's IP address from the request headers
     const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
 
-    // --- VPN and Proxy Check using IPinfo ---
+    // --- NEW: VPN and Proxy Check using IPQualityScore ---
     try {
-        const ipInfoResponse = await fetch(`https://ipinfo.io/${ip}?token=${ipinfoToken}`);
-        const ipData = await ipInfoResponse.json();
-
-        // -- ADD THIS LINE FOR DEBUGGING ---
-        console.log('IPinfo Response:', ipData);
-        // ------------------------------------
-
-        // The 'privacy' object contains details about VPNs, proxies, etc.
-        if (ipData.privacy && (ipData.privacy.vpn || ipData.privacy.proxy || ipData.privacy.hosting)) {
-            // If any of these are true, it's not a residential IP. Reject it.
+        // Note the new API URL structure
+        const ipqsResponse = await fetch(`https://ipqualityscore.com/api/json/ip/${ipqsKey}/${ip}`);
+        const ipData = await ipqsResponse.json();
+        
+        // IPQS uses simple boolean flags for "proxy" and "vpn"
+        if (ipData.success === true && (ipData.proxy || ipData.vpn)) {
+            // If either flag is true, reject the request.
             return response.status(403).json({ error: 'VPNs and proxies are not allowed. Please disable yours and try again.' });
         }
+        if (ipData.success === false) {
+             // If the API call itself fails, log it and stop
+             console.error("IPQS API Error:", ipData.message);
+             return response.status(500).json({ error: 'Failed to verify IP address.' });
+        }
+
     } catch (error) {
-        console.error("IPinfo API Error:", error);
-        // If the IPinfo check fails, we stop the process to be safe.
+        console.error("IPQS Fetch Error:", error);
+        // If the fetch call itself fails, we stop the process to be safe.
         return response.status(500).json({ error: 'Failed to verify IP address.' });
     }
     // --- End of new VPN check ---
