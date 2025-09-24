@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+a<!DOCTYPE html>
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
@@ -85,68 +85,17 @@
         h1 {
             font-size: 2rem;
             font-weight: 700;
+            margin-bottom: 0.5rem; /* Adjusted margin */
+        }
+
+        p {
             margin-bottom: 1.5rem;
-        }
-        
-        /* -- Checkbox Fix & Redesign -- */
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent; /* Removes blue tap highlight on mobile */
-        }
-
-        .checkbox-label input[type="checkbox"] {
-            display: none; /* Hide the default checkbox */
-        }
-
-        .custom-checkbox {
-            width: 24px;
-            height: 24px;
-            background-color: #202225;
-            border: 2px solid var(--primary-color);
-            border-radius: 6px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-right: 12px;
-            transition: all 0.3s ease;
-            transform-origin: center;
-        }
-        
-        .custom-checkbox .tick {
-            width: 6px;
-            height: 12px;
-            border: solid white;
-            border-width: 0 3px 3px 0;
-            transform: rotate(45deg) scale(0);
-            opacity: 0;
-            transition: all 0.2s ease-out;
-        }
-
-        .checkbox-label input[type="checkbox"]:checked + .custom-checkbox {
-            background-color: var(--primary-color);
-            transform: scale(1.1);
-        }
-        
-        .checkbox-label input[type="checkbox"]:checked + .custom-checkbox .tick {
-            transform: rotate(45deg) scale(1);
-            opacity: 1;
-        }
-
-        .checkbox-label span.text {
-            font-size: 1rem;
             color: var(--text-muted-color);
-            transition: color 0.3s ease;
         }
         
-        .checkbox-label:hover span.text {
-            color: var(--text-color);
-        }
-
-        .submit-btn {
+        .discord-btn {
+            display: inline-block;
+            text-decoration: none;
             width: 100%;
             padding: 15px;
             border-radius: 8px;
@@ -161,30 +110,11 @@
             box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
         }
 
-        .submit-btn:hover:not(:disabled) {
+        .discord-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
         }
-        
-        .submit-btn:active:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
-        }
 
-        .submit-btn:disabled {
-            background: #4f545c;
-            cursor: not-allowed;
-            opacity: 0.6;
-            box-shadow: none;
-        }
-
-        #message {
-            margin-top: 1.5rem;
-            font-weight: 600;
-            min-height: 24px;
-            transition: color 0.3s ease;
-        }
-        
         .footer {
             margin-top: 2rem;
             font-size: 0.9rem;
@@ -197,95 +127,44 @@
 
     <div class="card" id="main-card">
         <img src="https://i.ibb.co/dwxmdBY1/bcc-mc.png" alt="BCC MC Logo" class="logo">
-        <h1>Verifikacija</h1>
-        
-        <form id="verification-form">
-            <label class="checkbox-label" for="verify-checkbox">
-                <input type="checkbox" id="verify-checkbox">
-                <span class="custom-checkbox"><div class="tick"></div></span>
-                <span class="text">Slažem se sa verifikacijom</span>
-            </label>
-            
-            <button type="submit" id="submit-btn" class="submit-btn" disabled>Verifikuj IP Adresu</button>
-        </form>
-
-        <p id="message"></p>
-        
+        <h1>Finalni Korak</h1>
+        <p>Potvrdi svoj identitet da bi završio/la verifikaciju IP adrese.</p>
+        <a href="#" id="login-btn" class="discord-btn">Prijavi se sa Discordom</a>
         <p class="footer">Napravio: Kasapin</p>
     </div>
 
    <script>
-        const card = document.getElementById('main-card');
-        const form = document.getElementById('verification-form');
-        const checkbox = document.getElementById('verify-checkbox');
-        const submitBtn = document.getElementById('submit-btn');
-        const messageEl = document.getElementById('message');
-
-        // This part checks the URL when the page first loads
         document.addEventListener('DOMContentLoaded', () => {
+            const loginBtn = document.getElementById('login-btn');
+            const card = document.getElementById('main-card');
+            
+            // 1. Get the verification token from the URL
             const params = new URLSearchParams(window.location.search);
             const token = params.get('token');
+
+            // If the user visits the page without a token, show an error.
             if (!token) {
                 card.innerHTML = `
                     <h1>❌ Greška 404</h1>
                     <p>Stranica nije pronađena ili je verifikacioni link neispravan.</p>
-                    <p style="font-size: 0.8rem; color: #888; margin-top: 1.5rem;">Molimo vas, koristi link koji ste dobio/la od bota na Discordu.</p>
+                    <p style="font-size: 0.8rem; color: #888; margin-top: 1.5rem;">Molimo vas, koristite link koji ste dobili od bota na Discordu.</p>
                 `;
+                return;
             }
+
+            // 2. Prepare the Discord Authorization URL
+            // !!! IMPORTANT: Replace this with your actual Client ID from the Discord Developer Portal !!!
+            const clientId = '1409518810272108667'; 
+            
+            const redirectUri = encodeURIComponent('https://my-mc-whitelist.vercel.app/api/callback');
+            
+            // 3. We pass our verification token in the 'state' parameter.
+            // This is how we get it back after the user authorizes with Discord.
+            const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=identify&state=${token}`;
+
+            // 4. Set the button's link to the URL we just created.
+            loginBtn.href = discordAuthUrl;
         });
-
-        // This part handles the form submission when you click the button
-        if (form) {
-            checkbox.addEventListener('change', () => {
-                submitBtn.disabled = !checkbox.checked;
-            });
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                //
-                // THIS IS THE CRUCIAL FIX
-                // We read the token from the URL *again* right before sending.
-                //
-                const params = new URLSearchParams(window.location.search);
-                const token = params.get('token');
-
-                if (!token) {
-                    messageEl.textContent = '❌ Greška: Verifikacioni token nedostaje u URL-u.';
-                    messageEl.style.color = "var(--error-color)";
-                    return;
-                }
-                
-                messageEl.textContent = "Procesuiranje...";
-                messageEl.style.color = "var(--text-muted-color)";
-                submitBtn.disabled = true;
-
-                try {
-                    const response = await fetch('/api/whitelist', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        // And we send the 'token' in the body of the request
-                        body: JSON.stringify({ token: token })
-                    });
-
-                    const result = await response.json();
-
-                    if (response.ok) {
-                        // Redirect to the success page
-                        window.location.href = '/success.html';
-                    } else {
-                        throw new Error(result.error);
-                    }
-
-                } catch (error) {
-                    messageEl.textContent = `❌ Greška: ${error.message}`;
-                    messageEl.style.color = "var(--error-color)";
-                } finally {
-                    if(checkbox) submitBtn.disabled = !checkbox.checked;
-                }
-            });
-        }
-       //komentar 00
     </script>
 </body>
 </html>
